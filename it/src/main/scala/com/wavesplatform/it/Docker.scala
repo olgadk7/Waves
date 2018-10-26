@@ -351,6 +351,23 @@ class Docker(suiteConfig: Config = empty, tag: String = "", enableProfiling: Boo
     node
   }
 
+  def restartNodeWithNewConfig(node: DockerNode, configUpdates: Config): DockerNode = {
+    val renderedConfig = renderProperties(asProperties(configUpdates))
+
+    log.debug("Set new config directly in the script for starting node")
+    val shPath = "/opt/waves/start-waves.sh"
+    val scriptCmd: Array[String] =
+      Array("sh",
+            "-c",
+            s"""sed -i '4iexport WAVES_OPTS="$$WAVES_OPTS $renderedConfig"' $shPath &&
+           |chmod +x $shPath""".stripMargin)
+
+    val execScriptCmd = client.execCreate(node.containerId, scriptCmd).id()
+    client.execStart(execScriptCmd)
+
+    restartContainer(node)
+  }
+
   override def close(): Unit = {
     if (isStopped.compareAndSet(false, true)) {
       log.info("Stopping containers")
