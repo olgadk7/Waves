@@ -133,6 +133,7 @@ object BlockDiffer extends ScorexLogging with Instrumented {
             Left(ValidationError.GenericError(s"Limit of txs was reached: $initConstraint -> $updatedConstraint"))
           else
             txDiffer(updatedBlockchain, tx).map { newDiff =>
+              log.debug(s"=== tx (${tx.id}) diff $newDiff")
               val updatedDiff = currDiff.combine(newDiff)
               if (hasNg) {
                 val (curBlockFees, nextBlockFee) = clearSponsorship(updatedBlockchain, tx.feeDiff())

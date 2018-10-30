@@ -186,6 +186,8 @@ class BlockchainUpdaterImpl(blockchain: Blockchain, settings: WavesSettings, tim
                     }
 
                     diff.map { hardenedDiff =>
+                      log.debug(s"=== bui diff $referencedLiquidDiff")
+                      log.debug(s"=== bui block $referencedForgedBlock")
                       blockchain.append(referencedLiquidDiff, carry, referencedForgedBlock)
                       TxsInBlockchainStats.record(ng.transactions.size)
                       Some((hardenedDiff, discarded.flatMap(_.transactionData)))
